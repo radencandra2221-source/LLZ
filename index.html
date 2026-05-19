@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>MLBB Tools • Inject Per Mode (Classic/Rank)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            background: linear-gradient(145deg, #0a0f1e 0%, #0c1222 100%);
+            font-family: 'Poppins', 'Segoe UI', system-ui, sans-serif;
+            padding: 20px;
+            min-height: 100vh;
+            color: #eee;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1e2a3a;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #f0b90b;
+            border-radius: 10px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(135deg, #FFD966, #FF9F4A);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .badge {
+            background: #1f2a3e;
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 40px;
+            font-size: 0.8rem;
+            margin-top: 10px;
+            border: 1px solid #f0b90b55;
+        }
+        .disclaimer {
+            background: #1e1a2faa;
+            border-left: 4px solid #ffaa44;
+            padding: 10px 15px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            margin-top: 12px;
+            width: fit-content;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .server-module {
+            background: rgba(18, 25, 45, 0.8);
+            backdrop-filter: blur(12px);
+            border-radius: 28px;
+            padding: 20px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(240, 185, 11, 0.3);
+        }
+        .server-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            border-bottom: 1px solid #2a3550;
+            padding-bottom: 12px;
+            margin-bottom: 20px;
+        }
+        .server-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #0a0f1c;
+            padding: 6px 14px;
+            border-radius: 100px;
+        }
+        .led {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #ff5555;
+            box-shadow: 0 0 6px #ff5555;
+            transition: all 0.2s;
+        }
+        .led.active {
+            background: #2eff7a;
+            box-shadow: 0 0 12px #2eff7a;
+        }
+        .server-stats {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            font-size: 0.85rem;
+        }
+        .stat {
+            background: #101624;
+            padding: 6px 14px;
+            border-radius: 20px;
+        }
+
+        .mode-switch {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+        .mode-btn {
+            background: #1f2a48;
+            border: none;
+            color: white;
+            padding: 12px 30px;
+            border-radius: 60px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+            width: 180px;
+        }
+        .mode-btn.active {
+            background: #f0b90b;
+            color: #0a0f1e;
+            box-shadow: 0 0 15px rgba(240,185,11,0.5);
+        }
+
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+        .cheat-card {
+            background: #111827cc;
+            backdrop-filter: blur(4px);
+            border-radius: 24px;
+            padding: 18px;
+            border: 1px solid #2a374f;
+            transition: 0.2s;
+        }
+        .cheat-card:hover {
+            border-color: #f0b90b;
+            transform: translateY(-3px);
+        }
+        .cheat-name {
+            font-size: 1.4rem;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+        .toggle {
+            width: 48px;
+            height: 24px;
+            background: #2c3e55;
+            border-radius: 40px;
+            position: relative;
+            cursor: pointer;
+        }
+        .toggle.active {
+            background: #f0b90b;
+        }
+        .toggle-knob {
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            position: absolute;
+            top: 2px;
+            left: 3px;
+            transition: 0.2s;
+        }
+        .toggle.active .toggle-knob {
+            left: 25px;
+        }
+        .desc {
+            font-size: 0.8rem;
+            color: #aab3cf;
+            margin: 12px 0;
+        }
+        .slider-container {
+            margin-top: 12px;
+        }
+        input[type="range"] {
+            width: 100%;
+            background: #1f2a40;
+            height: 4px;
+            border-radius: 5px;
+            -webkit-appearance: none;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            background: #f0b90b;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        .value-label {
+            font-size: 0.7rem;
+            text-align: right;
+            display: block;
+        }
+        button.action-btn {
+            background: #1f2a48;
+            border: none;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 40px;
+            margin-top: 12px;
+            width: 100%;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+        button.action-btn:hover {
+            background: #f0b90b;
+            color: #0a0f1e;
+        }
+        .log-area {
+            background: #070b14;
+            border-radius: 20px;
+            padding: 16px;
+            font-family: monospace;
+            font-size: 0.8rem;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .log-title {
+            margin-bottom: 10px;
+            font-weight: bold;
+            border-left: 3px solid #f0b90b;
+            padding-left: 10px;
+        }
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(8px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+            flex-direction: column;
+            gap: 20px;
+            font-size: 1.4rem;
+            font-weight: bold;
+            visibility: hidden;
+            opacity: 0;
+            transition: 0.2s;
+        }
+        .loading-overlay.active {
+            visibility: visible;
+            opacity: 1;
+        }
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 6px solid #2c3e55;
+            border-top: 6px solid #f0b90b;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        @media (max-width: 700px) {
+            .header h1 { font-size: 1.8rem; }
+            .server-header { flex-direction: column; align-items: flex-start; }
+            .mode-btn { width: 140px; padding: 8px 0; font-size: 1rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>⚡ MLBB TOOLS • PER MODE INJECTOR</h1>
+        <div class="badge">🔒 CLASSIC & RANK MODE DENGAN INJECT TERPISAH</div>
+        <div class="disclaimer">⚠️ Peringatan: Hanya untuk keperluan antarmuka. Hormati ketentuan game.</div>
+    </div>
+
+    <div class="server-module">
+        <div class="server-header">
+            <div class="server-title">
+                <i>🖥️</i>
+                <h3>Module Server • Core Engine</h3>
+            </div>
+            <div class="status" id="serverStatusBlock">
+                <span class="led" id="serverLed"></span>
+                <span id="serverStatusText">Offline</span>
+            </div>
+        </div>
+        <div class="server-stats">
+            <div class="stat">🔌 Port: 3030 (secure tunnel)</div>
+            <div class="stat">📡 Latency: <span id="pingValue">0</span> ms</div>
+            <div class="stat">⚙️ Workers: 4 threads</div>
+            <div class="stat">📦 Cheat API: v2.6.9</div>
+        </div>
+        <div style="display: flex; gap: 12px; margin-top: 18px; flex-wrap: wrap;">
+            <button id="startServerBtn" class="action-btn" style="width: auto; background: #2a6b47;">🚀 Start Server Engine</button>
+            <button id="stopServerBtn" class="action-btn" style="width: auto; background: #6b2e2e;">⏹️ Stop Server</button>
+        </div>
+    </div>
+
+    <!-- Tombol Classic dan Ranked akan melakukan inject untuk mode masing-masing -->
+    <div class="mode-switch">
+        <button class="mode-btn" id="modeClassicBtn">🏆 CLASSIC (Inject)</button>
+        <button class="mode-btn" id="modeRankBtn">⭐ RANKED (Inject)</button>
+    </div>
+
+    <div class="tools-grid" id="toolsGrid"></div>
+
+    <div class="log-area">
+        <div class="log-title">📋 SERVER CONSOLE & CHEAT LOGS</div>
+        <div id="logMessages">[System] Tools siap. Klik CLASSIC atau RANKED untuk inject mode tersebut.<br></div>
+    </div>
+</div>
+
+<div id="loadingOverlay" class="loading-overlay">
+    <div class="spinner"></div>
+    <div>🚀 ENGINE LOADING<br><span style="font-size: 0.9rem;">Memulai server & menginjeksi cheat...</span></div>
+</div>
+
+<script>
+    // Daftar cheat (tanpa ESP, Aimbot, MapHack, EnemySkill, Teleport, DroneView)
+    const cheatList = [
+        { id: "dmgMulti", name: "Damage Multiplier", desc: "Lipat ganda damage (x1 - x5)", type: "slider", min: 1, max: 5, step: 0.1, defaultVal: 1 },
+        { id: "cdSpam", name: "No Cooldown", desc: "Skill & battle spell tanpa cooldown", type: "toggle", defaultValue: false },
+        { id: "speedHack", name: "Speed Hack", desc: "Kecepatan gerak +50% sampai 300%", type: "slider", min: 100, max: 300, step: 10, defaultVal: 100, unit: "%" },
+        { id: "antiban", name: "Anti-Ban Shield", desc: "Evade deteksi sistem", type: "toggle", defaultValue: false },
+        { id: "autoLastHit", name: "Auto Last Hit", desc: "Last hit otomatis minion/jungle", type: "toggle", defaultValue: false },
+        { id: "jungleTimer", name: "Jungle Timer Advanced", desc: "Timer respon buff & lord", type: "toggle", defaultValue: false },
+        { id: "regenBoost", name: "Regeneration Boost", desc: "HP/Regen 2x lipat", type: "toggle", defaultValue: false },
+        { id: "ccImmunity", name: "CC Immunity", desc: "Kebal crowd control", type: "toggle", defaultValue: false }
+    ];
+
+    // State untuk Classic dan Rank terpisah
+    let toolsStateClassic = {};
+    let toolsStateRank = {};
+    let currentMode = "classic"; // mode yang sedang dilihat user (untuk UI)
+    let serverActive = false;
+    let pingInterval = null;
+
+    // Inisialisasi state
+    cheatList.forEach(cheat => {
+        if (cheat.type === "toggle") {
+            toolsStateClassic[cheat.id] = cheat.defaultValue;
+            toolsStateRank[cheat.id] = cheat.defaultValue;
+        } else if (cheat.type === "slider") {
+            toolsStateClassic[cheat.id] = cheat.defaultVal;
+            toolsStateRank[cheat.id] = cheat.defaultVal;
+        }
+    });
+
+    function getCurrentState() {
+        return currentMode === "classic" ? toolsStateClassic : toolsStateRank;
+    }
+
+    function setCurrentState(newState) {
+        if (currentMode === "classic") toolsStateClassic = newState;
+        else toolsStateRank = newState;
+    }
+
+    function addLog(message, type = "info", modeForLog = null) {
+        const logDiv = document.getElementById("logMessages");
+        const time = new Date().toLocaleTimeString();
+        const prefix = type === "error" ? "❌" : (type === "success" ? "✅" : "🔹");
+        const modeTag = modeForLog ? `[${modeForLog.toUpperCase()}] ` : "";
+        logDiv.innerHTML += `[${time}] ${prefix} ${modeTag}${message}<br>`;
+        logDiv.scrollTop = logDiv.scrollHeight;
+        if (logDiv.innerHTML.split("<br>").length > 80) {
+            let lines = logDiv.innerHTML.split("<br>");
+            lines.splice(0, 30);
+            logDiv.innerHTML = lines.join("<br>");
+        }
+    }
+
+    // Fungsi untuk mengaktifkan immunity di mode tertentu (Anti-Ban, CC Immunity, RegenBoost)
+    function activateImmunityForMode(mode) {
+        let state = mode === "classic" ? toolsStateClassic : toolsStateRank;
+        let changed = false;
+        if (state.antiban !== true) { state.antiban = true; changed = true; }
+        if (state.ccImmunity !== true) { state.ccImmunity = true; changed = true; }
+        if (state.regenBoost !== true) { state.regenBoost = true; changed = true; }
+        if (changed) {
+            if (mode === "classic") toolsStateClassic = state;
+            else toolsStateRank = state;
+            addLog(`🛡️ IMMUNITY AKTIF untuk mode ${mode.toUpperCase()} (Anti-Ban, CC Immunity, Regen Boost)`, "success", mode);
+        }
+    }
+
+    // Fungsi untuk mengaktifkan semua cheat di mode tertentu (toggle true, slider max)
+    function activateAllCheatsForMode(mode) {
+        let state = mode === "classic" ? toolsStateClassic : toolsStateRank;
+        cheatList.forEach(cheat => {
+            if (cheat.type === "toggle") {
+                state[cheat.id] = true;
+            } else if (cheat.type === "slider") {
+                if (cheat.id === "dmgMulti") state[cheat.id] = 5;
+                else if (cheat.id === "speedHack") state[cheat.id] = 300;
+                else state[cheat.id] = cheat.max;
+            }
+        });
+        if (mode === "classic") toolsStateClassic = state;
+        else toolsStateRank = state;
+        
+        // Jika mode yang diinject adalah mode yang sedang dilihat, render ulang
+        if (currentMode === mode) renderTools();
+        addLog(`💣 SEMUA CHEAT AKTIF untuk mode ${mode.toUpperCase()} (Damage Max, Speed Max, No CD, dll)`, "success", mode);
+    }
+
+    function renderTools() {
+        const grid = document.getElementById("toolsGrid");
+        grid.innerHTML = "";
+        const state = getCurrentState();
+        cheatList.forEach(cheat => {
+            const card = document.createElement("div");
+            card.className = "cheat-card";
+            let innerHtml = `<div class="cheat-name"><span>${cheat.name}</span>`;
+            if (cheat.type === "toggle") {
+                const isActive = state[cheat.id];
+                innerHtml += `<div class="toggle ${isActive ? "active" : ""}" data-id="${cheat.id}" data-type="toggle">
+                                <div class="toggle-knob"></div>
+                              </div>`;
+            } else if (cheat.type === "slider") {
+                const val = state[cheat.id];
+                const unit = cheat.unit || "";
+                innerHtml += `<span style="font-size:0.8rem; background:#00000055; padding:2px 8px; border-radius:20px;">${val}${unit}</span>`;
+                innerHtml += `</div><div class="desc">${cheat.desc}</div>`;
+                innerHtml += `<div class="slider-container">
+                                <input type="range" id="slider-${cheat.id}" min="${cheat.min}" max="${cheat.max}" step="${cheat.step}" value="${val}">
+                                <span class="value-label">Nilai: ${val}${unit}</span>
+                              </div>`;
+                card.innerHTML = innerHtml;
+                grid.appendChild(card);
+                const slider = document.getElementById(`slider-${cheat.id}`);
+                slider.addEventListener("input", (e) => {
+                    let newVal = parseFloat(e.target.value);
+                    const currentStateObj = getCurrentState();
+                    currentStateObj[cheat.id] = newVal;
+                    setCurrentState(currentStateObj);
+                    const label = slider.parentElement.querySelector(".value-label");
+                    if (label) label.innerText = `Nilai: ${newVal}${unit}`;
+                    if (serverActive) addLog(`[${cheat.name}] diubah ke ${newVal}${unit}`, "info", currentMode);
+                    else addLog(`[${cheat.name}] diubah (server offline)`, "info", currentMode);
+                });
+                return;
+            }
+            innerHtml += `</div><div class="desc">${cheat.desc}</div>`;
+            card.innerHTML = innerHtml;
+            grid.appendChild(card);
+
+            if (cheat.type === "toggle") {
+                const toggleDiv = card.querySelector(".toggle");
+                toggleDiv.addEventListener("click", () => {
+                    const id = toggleDiv.dataset.id;
+                    const currentStateObj = getCurrentState();
+                    const newState = !currentStateObj[id];
+                    currentStateObj[id] = newState;
+                    setCurrentState(currentStateObj);
+                    if (newState) toggleDiv.classList.add("active");
+                    else toggleDiv.classList.remove("active");
+                    if (serverActive) addLog(`[${cheat.name}] ${newState ? "AKTIF" : "NONAKTIF"}`, "info", currentMode);
+                    else addLog(`[${cheat.name}] ${newState ? "AKTIF" : "NONAKTIF"} (server offline)`, "info", currentMode);
+                });
+            }
+        });
+    }
+
+    function startServer() {
+        if (serverActive) {
+            addLog("Server engine sudah berjalan.", "error");
+            return true;
+        }
+        serverActive = true;
+        document.getElementById("serverLed").classList.add("active");
+        document.getElementById("serverStatusText").innerText = "Online • Ready";
+        addLog("⚡ Server engine started on port 3030 | Authentication bypass enabled", "success");
+        addLog("🔗 Semua cheat terhubung ke backend.");
+        
+        if (pingInterval) clearInterval(pingInterval);
+        pingInterval = setInterval(() => {
+            if (serverActive) {
+                const fakePing = Math.floor(Math.random() * 30) + 12;
+                document.getElementById("pingValue").innerText = fakePing;
+            } else {
+                document.getElementById("pingValue").innerText = "0";
+                clearInterval(pingInterval);
+            }
+        }, 2000);
+        return true;
+    }
+
+    function stopServer() {
+        if (!serverActive) {
+            addLog("Server engine sudah offline.", "error");
+            return;
+        }
+        serverActive = false;
+        document.getElementById("serverLed").classList.remove("active");
+        document.getElementById("serverStatusText").innerText = "Offline";
+        document.getElementById("pingValue").innerText = "0";
+        if (pingInterval) clearInterval(pingInterval);
+        addLog("🛑 Server engine dihentikan.", "error");
+    }
+
+    // Fungsi inject untuk mode tertentu (dipanggil saat klik Classic/Ranked)
+    async function injectMode(targetMode) {
+        const overlay = document.getElementById("loadingOverlay");
+        overlay.classList.add("active");
+        addLog(`🔧 Memulai engine loading untuk mode ${targetMode.toUpperCase()}...`);
+
+        await new Promise(resolve => setTimeout(resolve, 800));
+
+        if (!serverActive) {
+            addLog("⏳ Server engine belum aktif, memulai otomatis...");
+            startServer();
+            await new Promise(resolve => setTimeout(resolve, 600));
+        }
+
+        // Aktifkan immunity untuk mode ini
+        activateImmunityForMode(targetMode);
+        // Aktifkan semua cheat untuk mode ini
+        activateAllCheatsForMode(targetMode);
+        
+        // Set currentMode ke mode yang diinject agar UI menampilkan state tersebut
+        currentMode = targetMode;
+        renderTools();
+        
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        addLog(`🚀 INJECT COMPLETE untuk mode ${targetMode.toUpperCase()}: Semua cheat aktif (Damage Max, Speed Max, No CD, Immunity)`, "success", targetMode);
+        addLog(`📡 Server console berjalan otomatis & stabil. Mode ${targetMode.toUpperCase()} siap digunakan.`);
+        
+        setTimeout(() => {
+            overlay.classList.remove("active");
+        }, 800);
+    }
+
+    // Event listeners untuk tombol mode (langsung inject)
+    document.getElementById("modeClassicBtn").addEventListener("click", () => injectMode("classic"));
+    document.getElementById("modeRankBtn").addEventListener("click", () => injectMode("rank"));
+    document.getElementById("startServerBtn").addEventListener("click", startServer);
+    document.getElementById("stopServerBtn").addEventListener("click", stopServer);
+
+    // Inisialisasi render tanpa inject otomatis
+    renderTools();
+    addLog("✨ Tools Cheat MLBB siap. Klik CLASSIC untuk inject mode Classic, atau RANKED untuk inject mode Ranked. Server akan otomatis menyala.");
+</script>
+</body>
+</html>

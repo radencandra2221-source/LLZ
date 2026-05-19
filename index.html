@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>MLBB Tools • Inject Per Mode (Classic/Rank)</title>
+    <title>MLBB Tools • Kill Ping Musuh + Inject Per Mode</title>
     <style>
         * {
             margin: 0;
@@ -302,8 +302,8 @@
 <body>
 <div class="container">
     <div class="header">
-        <h1>⚡ MLBB TOOLS • PER MODE INJECTOR</h1>
-        <div class="badge">🔒 CLASSIC & RANK MODE DENGAN INJECT TERPISAH</div>
+        <h1>⚡ MLBB TOOLS • GOD ENGINE</h1>
+        <div class="badge">🔒 KILL PING MUSUH + INJECT PER MODE</div>
         <div class="disclaimer">⚠️ Peringatan: Hanya untuk keperluan antarmuka. Hormati ketentuan game.</div>
     </div>
 
@@ -350,7 +350,7 @@
 </div>
 
 <script>
-    // Daftar cheat (tanpa ESP, Aimbot, MapHack, EnemySkill, Teleport, DroneView)
+    // DAFTAR CHEAT (ditambah Kill Ping Musuh)
     const cheatList = [
         { id: "dmgMulti", name: "Damage Multiplier", desc: "Lipat ganda damage (x1 - x5)", type: "slider", min: 1, max: 5, step: 0.1, defaultVal: 1 },
         { id: "cdSpam", name: "No Cooldown", desc: "Skill & battle spell tanpa cooldown", type: "toggle", defaultValue: false },
@@ -359,7 +359,8 @@
         { id: "autoLastHit", name: "Auto Last Hit", desc: "Last hit otomatis minion/jungle", type: "toggle", defaultValue: false },
         { id: "jungleTimer", name: "Jungle Timer Advanced", desc: "Timer respon buff & lord", type: "toggle", defaultValue: false },
         { id: "regenBoost", name: "Regeneration Boost", desc: "HP/Regen 2x lipat", type: "toggle", defaultValue: false },
-        { id: "ccImmunity", name: "CC Immunity", desc: "Kebal crowd control", type: "toggle", defaultValue: false }
+        { id: "ccImmunity", name: "CC Immunity", desc: "Kebal crowd control", type: "toggle", defaultValue: false },
+        { id: "killPing", name: "Kill Ping Musuh", desc: "Menaikkan latency musuh hingga 500ms (lag spike)", type: "toggle", defaultValue: false }
     ];
 
     // State untuk Classic dan Rank terpisah
@@ -434,7 +435,7 @@
         
         // Jika mode yang diinject adalah mode yang sedang dilihat, render ulang
         if (currentMode === mode) renderTools();
-        addLog(`💣 SEMUA CHEAT AKTIF untuk mode ${mode.toUpperCase()} (Damage Max, Speed Max, No CD, dll)`, "success", mode);
+        addLog(`💣 SEMUA CHEAT AKTIF untuk mode ${mode.toUpperCase()} (Damage Max, Speed Max, No CD, Kill Ping, dll)`, "success", mode);
     }
 
     function renderTools() {
@@ -490,6 +491,13 @@
                     else toggleDiv.classList.remove("active");
                     if (serverActive) addLog(`[${cheat.name}] ${newState ? "AKTIF" : "NONAKTIF"}`, "info", currentMode);
                     else addLog(`[${cheat.name}] ${newState ? "AKTIF" : "NONAKTIF"} (server offline)`, "info", currentMode);
+                    
+                    // Log khusus untuk Kill Ping Musuh
+                    if (id === "killPing" && newState) {
+                        addLog(`⚠️ Kill Ping Musuh AKTIF: Latency musuh dinaikkan hingga 500ms!`, "success", currentMode);
+                    } else if (id === "killPing" && !newState) {
+                        addLog(`✅ Kill Ping Musuh DINONAKTIFKAN: Latency musuh kembali normal.`, "info", currentMode);
+                    }
                 });
             }
         });
@@ -548,7 +556,7 @@
 
         // Aktifkan immunity untuk mode ini
         activateImmunityForMode(targetMode);
-        // Aktifkan semua cheat untuk mode ini
+        // Aktifkan semua cheat untuk mode ini (termasuk Kill Ping Musuh)
         activateAllCheatsForMode(targetMode);
         
         // Set currentMode ke mode yang diinject agar UI menampilkan state tersebut
@@ -557,8 +565,9 @@
         
         await new Promise(resolve => setTimeout(resolve, 500));
         
-        addLog(`🚀 INJECT COMPLETE untuk mode ${targetMode.toUpperCase()}: Semua cheat aktif (Damage Max, Speed Max, No CD, Immunity)`, "success", targetMode);
+        addLog(`🚀 INJECT COMPLETE untuk mode ${targetMode.toUpperCase()}: Semua cheat aktif (Damage Max, Speed Max, No CD, Kill Ping Musuh, Immunity)`, "success", targetMode);
         addLog(`📡 Server console berjalan otomatis & stabil. Mode ${targetMode.toUpperCase()} siap digunakan.`);
+        addLog(`⚠️ Kill Ping Musuh aktif: Musuh akan mengalami lag berat!`, "success", targetMode);
         
         setTimeout(() => {
             overlay.classList.remove("active");
@@ -573,7 +582,7 @@
 
     // Inisialisasi render tanpa inject otomatis
     renderTools();
-    addLog("✨ Tools Cheat MLBB siap. Klik CLASSIC untuk inject mode Classic, atau RANKED untuk inject mode Ranked. Server akan otomatis menyala.");
+    addLog("✨ Tools Cheat MLBB siap. Klik CLASSIC untuk inject mode Classic, atau RANKED untuk inject mode Ranked. Server akan otomatis menyala. Fitur Kill Ping Musuh siap digunakan.");
 </script>
 </body>
 </html>

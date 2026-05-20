@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>MLBB Tools • Kill Ping Musuh + Inject Per Mode</title>
+    <title>MLBB Tools • Musuh Bot + Team GG + Kill Ping</title>
     <style>
         * {
             margin: 0;
@@ -303,7 +303,7 @@
 <div class="container">
     <div class="header">
         <h1>⚡ MLBB TOOLS • GOD ENGINE</h1>
-        <div class="badge">🔒 KILL PING MUSUH + INJECT PER MODE</div>
+        <div class="badge">🔒 MUSUH BOT | TEAM GG | KILL PING</div>
         <div class="disclaimer">⚠️ Peringatan: Hanya untuk keperluan antarmuka. Hormati ketentuan game.</div>
     </div>
 
@@ -330,7 +330,6 @@
         </div>
     </div>
 
-    <!-- Tombol Classic dan Ranked akan melakukan inject untuk mode masing-masing -->
     <div class="mode-switch">
         <button class="mode-btn" id="modeClassicBtn">🏆 CLASSIC (Inject)</button>
         <button class="mode-btn" id="modeRankBtn">⭐ RANKED (Inject)</button>
@@ -340,7 +339,7 @@
 
     <div class="log-area">
         <div class="log-title">📋 SERVER CONSOLE & CHEAT LOGS</div>
-        <div id="logMessages">[System] Tools siap. Klik CLASSIC atau RANKED untuk inject mode tersebut.<br></div>
+        <div id="logMessages">[System] Tools siap. Klik CLASSIC atau RANKED untuk inject.<br></div>
     </div>
 </div>
 
@@ -350,7 +349,7 @@
 </div>
 
 <script>
-    // DAFTAR CHEAT (ditambah Kill Ping Musuh)
+    // DAFTAR CHEAT (ditambah Musuh Bot dan Team GG)
     const cheatList = [
         { id: "dmgMulti", name: "Damage Multiplier", desc: "Lipat ganda damage (x1 - x5)", type: "slider", min: 1, max: 5, step: 0.1, defaultVal: 1 },
         { id: "cdSpam", name: "No Cooldown", desc: "Skill & battle spell tanpa cooldown", type: "toggle", defaultValue: false },
@@ -360,17 +359,17 @@
         { id: "jungleTimer", name: "Jungle Timer Advanced", desc: "Timer respon buff & lord", type: "toggle", defaultValue: false },
         { id: "regenBoost", name: "Regeneration Boost", desc: "HP/Regen 2x lipat", type: "toggle", defaultValue: false },
         { id: "ccImmunity", name: "CC Immunity", desc: "Kebal crowd control", type: "toggle", defaultValue: false },
-        { id: "killPing", name: "Kill Ping Musuh", desc: "Menaikkan latency musuh hingga 500ms (lag spike)", type: "toggle", defaultValue: false }
+        { id: "killPing", name: "Kill Ping Musuh", desc: "Menaikkan latency musuh hingga 500ms (lag spike)", type: "toggle", defaultValue: false },
+        { id: "musuhBot", name: "Musuh Bot", desc: "Menjadikan semua musuh seperti AI bot (lemah, gerak kaku)", type: "toggle", defaultValue: false },
+        { id: "teamGG", name: "Team GG", desc: "Tim sendiri mendapat buff super (auto win, stat tertinggi)", type: "toggle", defaultValue: false }
     ];
 
-    // State untuk Classic dan Rank terpisah
     let toolsStateClassic = {};
     let toolsStateRank = {};
-    let currentMode = "classic"; // mode yang sedang dilihat user (untuk UI)
+    let currentMode = "classic";
     let serverActive = false;
     let pingInterval = null;
 
-    // Inisialisasi state
     cheatList.forEach(cheat => {
         if (cheat.type === "toggle") {
             toolsStateClassic[cheat.id] = cheat.defaultValue;
@@ -404,7 +403,6 @@
         }
     }
 
-    // Fungsi untuk mengaktifkan immunity di mode tertentu (Anti-Ban, CC Immunity, RegenBoost)
     function activateImmunityForMode(mode) {
         let state = mode === "classic" ? toolsStateClassic : toolsStateRank;
         let changed = false;
@@ -418,7 +416,6 @@
         }
     }
 
-    // Fungsi untuk mengaktifkan semua cheat di mode tertentu (toggle true, slider max)
     function activateAllCheatsForMode(mode) {
         let state = mode === "classic" ? toolsStateClassic : toolsStateRank;
         cheatList.forEach(cheat => {
@@ -432,10 +429,8 @@
         });
         if (mode === "classic") toolsStateClassic = state;
         else toolsStateRank = state;
-        
-        // Jika mode yang diinject adalah mode yang sedang dilihat, render ulang
         if (currentMode === mode) renderTools();
-        addLog(`💣 SEMUA CHEAT AKTIF untuk mode ${mode.toUpperCase()} (Damage Max, Speed Max, No CD, Kill Ping, dll)`, "success", mode);
+        addLog(`💣 SEMUA CHEAT AKTIF untuk mode ${mode.toUpperCase()} (Damage Max, Speed Max, No CD, Kill Ping, Musuh Bot, Team GG, Immunity)`, "success", mode);
     }
 
     function renderTools() {
@@ -492,12 +487,9 @@
                     if (serverActive) addLog(`[${cheat.name}] ${newState ? "AKTIF" : "NONAKTIF"}`, "info", currentMode);
                     else addLog(`[${cheat.name}] ${newState ? "AKTIF" : "NONAKTIF"} (server offline)`, "info", currentMode);
                     
-                    // Log khusus untuk Kill Ping Musuh
-                    if (id === "killPing" && newState) {
-                        addLog(`⚠️ Kill Ping Musuh AKTIF: Latency musuh dinaikkan hingga 500ms!`, "success", currentMode);
-                    } else if (id === "killPing" && !newState) {
-                        addLog(`✅ Kill Ping Musuh DINONAKTIFKAN: Latency musuh kembali normal.`, "info", currentMode);
-                    }
+                    if (id === "killPing" && newState) addLog(`⚠️ Kill Ping Musuh AKTIF: Latency musuh meningkat!`, "success", currentMode);
+                    if (id === "musuhBot" && newState) addLog(`🤖 Musuh Bot AKTIF: Semua musuh menjadi AI lemah!`, "success", currentMode);
+                    if (id === "teamGG" && newState) addLog(`🔥 Team GG AKTIF: Tim sendiri mendapat buff super!`, "success", currentMode);
                 });
             }
         });
@@ -513,7 +505,6 @@
         document.getElementById("serverStatusText").innerText = "Online • Ready";
         addLog("⚡ Server engine started on port 3030 | Authentication bypass enabled", "success");
         addLog("🔗 Semua cheat terhubung ke backend.");
-        
         if (pingInterval) clearInterval(pingInterval);
         pingInterval = setInterval(() => {
             if (serverActive) {
@@ -540,49 +531,36 @@
         addLog("🛑 Server engine dihentikan.", "error");
     }
 
-    // Fungsi inject untuk mode tertentu (dipanggil saat klik Classic/Ranked)
     async function injectMode(targetMode) {
         const overlay = document.getElementById("loadingOverlay");
         overlay.classList.add("active");
         addLog(`🔧 Memulai engine loading untuk mode ${targetMode.toUpperCase()}...`);
-
         await new Promise(resolve => setTimeout(resolve, 800));
-
         if (!serverActive) {
             addLog("⏳ Server engine belum aktif, memulai otomatis...");
             startServer();
             await new Promise(resolve => setTimeout(resolve, 600));
         }
-
-        // Aktifkan immunity untuk mode ini
         activateImmunityForMode(targetMode);
-        // Aktifkan semua cheat untuk mode ini (termasuk Kill Ping Musuh)
         activateAllCheatsForMode(targetMode);
-        
-        // Set currentMode ke mode yang diinject agar UI menampilkan state tersebut
         currentMode = targetMode;
         renderTools();
-        
         await new Promise(resolve => setTimeout(resolve, 500));
-        
-        addLog(`🚀 INJECT COMPLETE untuk mode ${targetMode.toUpperCase()}: Semua cheat aktif (Damage Max, Speed Max, No CD, Kill Ping Musuh, Immunity)`, "success", targetMode);
-        addLog(`📡 Server console berjalan otomatis & stabil. Mode ${targetMode.toUpperCase()} siap digunakan.`);
-        addLog(`⚠️ Kill Ping Musuh aktif: Musuh akan mengalami lag berat!`, "success", targetMode);
-        
-        setTimeout(() => {
-            overlay.classList.remove("active");
-        }, 800);
+        addLog(`🚀 INJECT COMPLETE untuk mode ${targetMode.toUpperCase()}: Semua cheat aktif (Musuh Bot, Team GG, Kill Ping, dll)`, "success", targetMode);
+        addLog(`📡 Server console berjalan otomatis & stabil. Mode ${targetMode.toUpperCase()} siap.`, "info", targetMode);
+        if (getCurrentState().musuhBot) addLog(`🤖 MUSUH BOT aktif: Musuh akan bergerak seperti bot!`, "success", targetMode);
+        if (getCurrentState().teamGG) addLog(`🔥 TEAM GG aktif: Timmu memiliki stat maksimal!`, "success", targetMode);
+        if (getCurrentState().killPing) addLog(`⚠️ KILL PING aktif: Musuh mengalami lag berat!`, "success", targetMode);
+        setTimeout(() => overlay.classList.remove("active"), 800);
     }
 
-    // Event listeners untuk tombol mode (langsung inject)
     document.getElementById("modeClassicBtn").addEventListener("click", () => injectMode("classic"));
     document.getElementById("modeRankBtn").addEventListener("click", () => injectMode("rank"));
     document.getElementById("startServerBtn").addEventListener("click", startServer);
     document.getElementById("stopServerBtn").addEventListener("click", stopServer);
 
-    // Inisialisasi render tanpa inject otomatis
     renderTools();
-    addLog("✨ Tools Cheat MLBB siap. Klik CLASSIC untuk inject mode Classic, atau RANKED untuk inject mode Ranked. Server akan otomatis menyala. Fitur Kill Ping Musuh siap digunakan.");
+    addLog("✨ Tools MLBB dengan fitur MUSUH BOT, TEAM GG, dan KILL PING siap. Pilih mode CLASSIC atau RANKED untuk inject.");
 </script>
 </body>
 </html>

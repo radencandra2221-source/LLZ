@@ -108,9 +108,26 @@
             box-shadow: 0 0 6px #ff5555;
             transition: all 0.2s;
         }
+        /* Efek berkedip untuk LED saat aktif */
         .led.active {
             background: #2eff7a;
             box-shadow: 0 0 12px #2eff7a;
+            animation: blinkLed 0.8s infinite;
+        }
+        @keyframes blinkLed {
+            0% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(0.9); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+        /* Efek berkedip untuk teks Online */
+        .status-text-blink {
+            animation: blinkText 0.8s infinite;
+            font-weight: bold;
+        }
+        @keyframes blinkText {
+            0% { opacity: 1; text-shadow: 0 0 0px #2eff7a; }
+            50% { opacity: 0.6; text-shadow: 0 0 4px #2eff7a; }
+            100% { opacity: 1; text-shadow: 0 0 0px #2eff7a; }
         }
         .server-stats {
             display: flex;
@@ -315,7 +332,7 @@
             </div>
             <div class="status" id="serverStatusBlock">
                 <span class="led" id="serverLed"></span>
-                <span id="serverStatusText">Offline</span>
+                <span id="serverStatusText" class="">Offline</span>
             </div>
         </div>
         <div class="server-stats">
@@ -349,11 +366,9 @@
 </div>
 
 <script>
-    // DAFTAR CHEAT (ditambah Musuh Bot dan Team GG)
+    // DAFTAR CHEAT (No Cooldown dan Speed Hack sudah dihapus)
     const cheatList = [
         { id: "dmgMulti", name: "Damage Multiplier", desc: "Lipat ganda damage (x1 - x5)", type: "slider", min: 1, max: 5, step: 0.1, defaultVal: 1 },
-        { id: "cdSpam", name: "No Cooldown", desc: "Skill & battle spell tanpa cooldown", type: "toggle", defaultValue: false },
-        { id: "speedHack", name: "Speed Hack", desc: "Kecepatan gerak +50% sampai 300%", type: "slider", min: 100, max: 300, step: 10, defaultVal: 100, unit: "%" },
         { id: "antiban", name: "Anti-Ban Shield", desc: "Evade deteksi sistem", type: "toggle", defaultValue: false },
         { id: "autoLastHit", name: "Auto Last Hit", desc: "Last hit otomatis minion/jungle", type: "toggle", defaultValue: false },
         { id: "jungleTimer", name: "Jungle Timer Advanced", desc: "Timer respon buff & lord", type: "toggle", defaultValue: false },
@@ -423,14 +438,13 @@
                 state[cheat.id] = true;
             } else if (cheat.type === "slider") {
                 if (cheat.id === "dmgMulti") state[cheat.id] = 5;
-                else if (cheat.id === "speedHack") state[cheat.id] = 300;
                 else state[cheat.id] = cheat.max;
             }
         });
         if (mode === "classic") toolsStateClassic = state;
         else toolsStateRank = state;
         if (currentMode === mode) renderTools();
-        addLog(`💣 SEMUA CHEAT AKTIF untuk mode ${mode.toUpperCase()} (Damage Max, Speed Max, No CD, Kill Ping, Musuh Bot, Team GG, Immunity)`, "success", mode);
+        addLog(`💣 SEMUA CHEAT AKTIF untuk mode ${mode.toUpperCase()} (Damage Max, Kill Ping, Musuh Bot, Team GG, Immunity)`, "success", mode);
     }
 
     function renderTools() {
@@ -501,8 +515,11 @@
             return true;
         }
         serverActive = true;
-        document.getElementById("serverLed").classList.add("active");
-        document.getElementById("serverStatusText").innerText = "Online • Ready";
+        const led = document.getElementById("serverLed");
+        const statusText = document.getElementById("serverStatusText");
+        led.classList.add("active");
+        statusText.innerText = "Online";
+        statusText.classList.add("status-text-blink");
         addLog("⚡ Server engine started on port 3030 | Authentication bypass enabled", "success");
         addLog("🔗 Semua cheat terhubung ke backend.");
         if (pingInterval) clearInterval(pingInterval);
@@ -524,8 +541,11 @@
             return;
         }
         serverActive = false;
-        document.getElementById("serverLed").classList.remove("active");
-        document.getElementById("serverStatusText").innerText = "Offline";
+        const led = document.getElementById("serverLed");
+        const statusText = document.getElementById("serverStatusText");
+        led.classList.remove("active");
+        statusText.innerText = "Offline";
+        statusText.classList.remove("status-text-blink");
         document.getElementById("pingValue").innerText = "0";
         if (pingInterval) clearInterval(pingInterval);
         addLog("🛑 Server engine dihentikan.", "error");
